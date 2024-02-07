@@ -1,4 +1,8 @@
 PRAGMA foreign_keys = ON;
+DROP TABLE if exists question_likes;
+DROP TABLE if exists replies;
+DROP TABLE if exists question_follows;
+DROP TABLE if exists questions;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
@@ -12,7 +16,7 @@ INSERT INTO
 VALUES
   ('Ned', 'Ruggeri'), ('Kush', 'Patel'), ('Earl', 'Cat');
 
-DROP TABLE if exists questions;
+
 
 CREATE TABLE questions (
   id INTEGER PRIMARY KEY,
@@ -50,7 +54,7 @@ FROM
 WHERE
   users.fname = 'Earl' AND users.lname = 'Cat';
 
-DROP TABLE if exists question_follows;
+
 
 CREATE TABLE question_follows (
   id INTEGER PRIMARY KEY,
@@ -72,7 +76,6 @@ VALUES
 );
 
 
-DROP TABLE if exists replies;
 
 CREATE TABLE replies (
   id INTEGER PRIMARY KEY,
@@ -103,7 +106,6 @@ VALUES
   'I think he said MEOW MEOW MEOW.'
 );
 
-DROP TABLE if exists question_likes;
 
 
 CREATE TABLE question_likes (
