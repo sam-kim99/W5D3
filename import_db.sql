@@ -130,3 +130,19 @@ INSERT INTO question_likes (user_id, question_id) VALUES (2, 1);
 INSERT INTO question_likes (user_id, question_id) VALUES (2, 2);
 INSERT INTO question_likes (user_id, question_id) VALUES (3, 1);
 
+CREATE TABLE tags (
+  id INTEGER PRIMARY KEY,
+  name VARCHAR(255) NOT NULL
+);
+
+INSERT INTO tags (name) VALUES ("Ruby");
+INSERT INTO tags (name) VALUES ("Javascript");
+INSERT INTO tags (name) VALUES ("CSS");
+INSERT INTO tags (name) VALUES ("HTML");
+
+
+CREATE TABLE question_tags (
+  id INTEGER PRIMARY KEY,
+  question_id INTEGER,
+  tag_id INTEGER
+);
