@@ -13,6 +13,7 @@ class QuestionsDatabaseConnection < SQLite3::Database
 end
 
 class User
+    attr_reader :id
     attr_accessor :fname, :lname
     def self.find_by_id(id)
         data = QuestionsDatabaseConnection.instance.execute(<<-SQL, id)
@@ -20,7 +21,7 @@ class User
             FROM users
             WHERE id = ?
         SQL
-        data.map {|datum| User.new(datum)}
+        data.map! {|datum| User.new(datum)}
         data.first
     end
 
@@ -30,7 +31,7 @@ class User
             FROM users
             WHERE fname = ? AND lname = ?
         SQL
-        data.map {|datum| User.new(datum)}
+        data.map! {|datum| User.new(datum)}
         data.first
     end
 
@@ -39,9 +40,18 @@ class User
         @fname = options['fname']
         @lname = options['lname']
     end
+
+    def authored_questions
+        Question.find_by_author_id(id)
+    end
+
+    def authored_replies
+        Reply.find_by_author_id(id)
+    end
 end
 
 class Question
+    attr_reader :id
     attr_accessor :title, :body, :author_id
     def self.find_by_id(id)
         data = QuestionsDatabaseConnection.instance.execute(<<-SQL, id)
@@ -49,7 +59,7 @@ class Question
             FROM questions
             WHERE id = ?
         SQL
-        data.map {|datum| Question.new(datum)}
+        data.map! {|datum| Question.new(datum)}
         data.first
     end
 
@@ -59,8 +69,8 @@ class Question
             FROM questions
             WHERE author_id = ?
         SQL
-        data.map {|datum| Question.new(datum)}
-        data.first
+        data.map! {|datum| Question.new(datum)}
+        
     end
 
     def initialize(options)
@@ -68,6 +78,13 @@ class Question
         @title = options['title']
         @body = options['body']
         @author_id = options['author_id']
+    end
+    
+    def author
+        User.find_by_id(author_id)
+    end
+    def replies
+        Reply.find_by_question_id(id)
     end
 end
 
@@ -79,7 +96,7 @@ class QuestionFollow
             FROM question_follows
             WHERE id = ?
         SQL
-        data.map {|datum| QuestionFollow.new(datum)}
+        data.map! {|datum| QuestionFollow.new(datum)}
         data.first
     end
 
@@ -91,6 +108,7 @@ class QuestionFollow
 end
 
 class Reply
+    attr_reader :id
     attr_accessor :parent_reply_id, :question_id, :author_id, :body
     def self.find_by_id(id)
         data = QuestionsDatabaseConnection.instance.execute(<<-SQL, id)
@@ -98,7 +116,7 @@ class Reply
             FROM replies
             WHERE id = ?
         SQL
-        data.map {|datum| Reply.new(datum)}
+        data.map! {|datum| Reply.new(datum)}
         data.first
     end
 
@@ -108,8 +126,7 @@ class Reply
             FROM replies
             WHERE author_id = ?
         SQL
-        data.map {|datum| Reply.new(datum)}
-        data.first
+        data.map! {|datum| Reply.new(datum)}
     end
 
     def self.find_by_question_id(question_id)
@@ -118,7 +135,7 @@ class Reply
             FROM replies
             WHERE question_id = ?
         SQL
-        data.map {|datum| Reply.new(datum)}
+        data.map! {|datum| Reply.new(datum)}
         data.first
     end
 
@@ -128,5 +145,25 @@ class Reply
         @question_id = options['question_id']
         @author_id = options['author_id']
         @body = options['body']
+    end
+
+    def author
+        User.find_by_id(author_id)
+    end
+    def question
+        Question.find_by_question_id(question_id)
+    end
+
+    def parent_reply_id
+        Reply.find_by_id(parent_reply_id)
+    end
+
+    def child_replies
+        data = QuestionsDatabaseConnection.instance.execute(<<-SQL, id)
+            SELECT * 
+            FROM replies
+            WHERE parent_reply_id = ?
+        SQL
+        data.map! {|datum| Reply.new(datum)}
     end
 end
